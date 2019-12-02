@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "73606718730",
+    "firebase_url": "https://challen-face-swap.firebaseio.com",
+    "project_id": "challen-face-swap",
+    "storage_bucket": "challen-face-swap.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73606718730:android:3b1559ec2e01253d4e86f3",
+        "android_client_info": {
+          "package_name": "com.example.challenfaceswap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "73606718730-rs2brv9h7pp92tksmadeu7941k52u1j3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6jTvmu5C1aak9UXCpB9B8G_4Kj3xXMNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "73606718730-rs2brv9h7pp92tksmadeu7941k52u1j3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -26,4 +26,16 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    //classpath 'com.google.gms:google-services:4.3.2'  // Google Services plugin
+    // Add the Firebase SDK for Google Analytics
+    implementation 'com.google.firebase:firebase-analytics:17.2.1'
+
+    //ML KIT for face detection
+    implementation 'com.google.firebase:firebase-ml-vision:24.0.1'
+    // If you want to detect face contours (landmark detection and classification
+    // don't require this additional model):
+    implementation 'com.google.firebase:firebase-ml-vision-face-model:19.0.0'
 }
+
+apply plugin: 'com.google.gms.google-services'  // Google Play services Gradle plugin
