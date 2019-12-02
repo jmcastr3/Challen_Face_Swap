@@ -17,5 +17,18 @@
             android:layout_height="wrap_content"
             android:text="Take Picture"
             android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/challenPic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:srcCompat="@drawable/challen" />
+
+        <ImageView
+            android:id="@+id/yourPic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:srcCompat="@tools:sample/avatars[10]" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
