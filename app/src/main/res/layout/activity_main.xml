@@ -28,7 +28,8 @@
             android:id="@+id/faceSwap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Face Swap" />
+            android:text="Face Swap"
+            android:visibility="invisible" />
 
         <ImageView
             android:id="@+id/yourPic"

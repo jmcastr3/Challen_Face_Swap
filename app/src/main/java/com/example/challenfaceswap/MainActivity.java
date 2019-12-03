@@ -37,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap userBitmap;
 
+    private Rect userBounds;
+
+    private Rect challenBounds;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +52,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
+            }
+        });
+
+        Button swapFaces = findViewById(R.id.faceSwap);
+        swapFaces.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                swapFacesFunction();
             }
         });
 
@@ -83,15 +95,16 @@ public class MainActivity extends AppCompatActivity {
                                         // Task completed successfully
                                         // ...
                                         for (FirebaseVisionFace face : faces) {
+                                            challenBounds = face.getBoundingBox();
                                             Rect bounds = face.getBoundingBox();
                                             //Top left to top right
-                                            challenCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint());
+                                            challenCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Top right to bottom right
-                                            challenCanvas.drawLine(bounds.right, bounds.top, bounds.right, bounds.bottom, new Paint());
+                                            challenCanvas.drawLine(bounds.right, bounds.top, bounds.right, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Bottom right to bottom left
-                                            challenCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint());
+                                            challenCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Bottom left to top left
-                                            challenCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint());
+                                            challenCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
 
                                         }
                                     }
@@ -105,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
 
+
     }
 
     /**
@@ -115,6 +129,26 @@ public class MainActivity extends AppCompatActivity {
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
+    }
+
+    private void swapFacesFunction() {
+        final Canvas userCanvas = new Canvas(userBitmap);
+        final Canvas challenCanvas = new Canvas(challenBitmap);
+
+        int challenLeft = (int) Math.floor(challenBounds.left);
+        int challenTop = (int) Math.floor(challenBounds.top);
+        int challenWidth = ((int) Math.floor(challenBounds.right)) - challenLeft;
+        int challenHeight = Math.abs(((int) Math.floor(challenBounds.bottom)) - challenTop);
+        Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
+
+        int userLeft = (int) Math.floor(userBounds.left);
+        int userTop = (int) Math.floor(userBounds.top);
+        int userWidth = ((int) Math.floor(userBounds.right)) - userLeft;
+        int userHeight = Math.abs(((int) Math.floor(userBounds.bottom)) - userTop);
+        Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
+
+        userCanvas.drawBitmap(challenFace, challenBounds, userBounds, new Paint());
+        challenCanvas.drawBitmap(userFace, userBounds, challenBounds, new Paint());
     }
 
     /**
@@ -161,7 +195,11 @@ public class MainActivity extends AppCompatActivity {
                                             ImageView userPic = findViewById(R.id.yourPic);
                                             userPic.setImageBitmap(userBitmap);
 
+                                            int counter = 0;
                                             for (FirebaseVisionFace face : faces) {
+                                                if (counter == 0) {
+                                                    userBounds = face.getBoundingBox();
+                                                }
                                                 Rect bounds = face.getBoundingBox();
                                                 //Top left to top right
                                                 userCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
@@ -171,7 +209,10 @@ public class MainActivity extends AppCompatActivity {
                                                 userCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 //Bottom left to top left
                                                 userCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
+                                                counter++;
                                             }
+                                            Button swap = findViewById(R.id.faceSwap);
+                                            swap.setVisibility(View.VISIBLE);
                                         }
                                     })
                             .addOnFailureListener(
