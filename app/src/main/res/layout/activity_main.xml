@@ -21,13 +21,19 @@
         <ImageView
             android:id="@+id/challenPic"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="298dp"
             tools:srcCompat="@drawable/challen" />
+
+        <Button
+            android:id="@+id/faceSwap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Face Swap" />
 
         <ImageView
             android:id="@+id/yourPic"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="330dp"
             tools:srcCompat="@tools:sample/avatars[10]" />
 
     </LinearLayout>

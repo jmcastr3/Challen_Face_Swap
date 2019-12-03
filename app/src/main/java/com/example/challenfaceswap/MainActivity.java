@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -31,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
      */
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
+    private Bitmap challenBitmap;
+
+    private Bitmap userBitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Bitmap challenBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.challen);
-        ImageView userPic = findViewById(R.id.challenPic);
-        userPic.setImageBitmap(challenBitmap);
+        Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen);
+        challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
+        final Canvas challenCanvas = new Canvas(challenBitmap);
+        ImageView challenPic = findViewById(R.id.challenPic);
+        challenPic.setImageBitmap(challenBitmap);
 
         FirebaseVisionFaceDetectorOptions challenFace =
                 new FirebaseVisionFaceDetectorOptions.Builder()
@@ -76,6 +84,15 @@ public class MainActivity extends AppCompatActivity {
                                         // ...
                                         for (FirebaseVisionFace face : faces) {
                                             Rect bounds = face.getBoundingBox();
+                                            //Top left to top right
+                                            challenCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint());
+                                            //Top right to bottom right
+                                            challenCanvas.drawLine(bounds.right, bounds.top, bounds.right, bounds.bottom, new Paint());
+                                            //Bottom right to bottom left
+                                            challenCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint());
+                                            //Bottom left to top left
+                                            challenCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint());
+
                                         }
                                     }
                                 })
@@ -111,7 +128,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             //Get the picture as a bitmap and store it in the instance variable.
             Bundle extras = data.getExtras();
-            final Bitmap imageBitmap = (Bitmap) extras.get("data");
+            userBitmap = (Bitmap) extras.get("data");
+            ImageView userView = findViewById(R.id.yourPic);
+            userView.setImageBitmap(userBitmap);
+            final Canvas userCanvas = new Canvas(userBitmap);
 
             //Configure the face detector to high accuracy.
             FirebaseVisionFaceDetectorOptions userFace =
@@ -123,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
             //Create a FirebaseVisionImage object from your image.
             //To create a FirebaseVisionImage object from a Bitmap object:
-            FirebaseVisionImage userImage = FirebaseVisionImage.fromBitmap(imageBitmap);
+            FirebaseVisionImage userImage = FirebaseVisionImage.fromBitmap(userBitmap);
 
             //Get an instance of FirebaseVisionFaceDetector:
             FirebaseVisionFaceDetector userDetector = FirebaseVision.getInstance()
@@ -139,10 +159,18 @@ public class MainActivity extends AppCompatActivity {
                                             // Task completed successfully
                                             // ...
                                             ImageView userPic = findViewById(R.id.yourPic);
-                                            userPic.setImageBitmap(imageBitmap);
+                                            userPic.setImageBitmap(userBitmap);
 
                                             for (FirebaseVisionFace face : faces) {
                                                 Rect bounds = face.getBoundingBox();
+                                                //Top left to top right
+                                                userCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
+                                                //Top right to bottom right
+                                                userCanvas.drawLine(bounds.right, bounds.top, bounds.right, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
+                                                //Bottom right to bottom left
+                                                userCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
+                                                //Bottom left to top left
+                                                userCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             }
                                         }
                                     })
