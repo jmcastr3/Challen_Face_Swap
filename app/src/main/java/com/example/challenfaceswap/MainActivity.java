@@ -25,6 +25,7 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,11 +36,17 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap challenBitmap;
 
+    private Bitmap tempChallen;
+
     private Bitmap userBitmap;
+
+    private Bitmap tempUser;
 
     private Rect userBounds;
 
     private Rect challenBounds;
+
+    private int[] imageArray = {R.drawable.challen, R.drawable.challen2, R.drawable.challen3, R.drawable.challen4, R.drawable.challen5};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
+                resetChallen();
             }
         });
 
@@ -63,9 +71,67 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button randomChallen = findViewById(R.id.randomChallen);
+        randomChallen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetChallen();
+            }
+        });
 
         Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen);
         challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
+        ImageView challenPic = findViewById(R.id.challenPic);
+        challenPic.setImageBitmap(challenBitmap);
+    }
+
+    /**
+     * Makes an intent and starts an activity to take a picture.
+     */
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    private void swapFacesFunction() {
+        Button swap = findViewById(R.id.faceSwap);
+        swap.setVisibility(View.GONE);
+
+        final Canvas userCanvas = new Canvas(userBitmap);
+        final Canvas challenCanvas = new Canvas(challenBitmap);
+
+        int challenLeft = (int) Math.floor(challenBounds.left);
+        int challenTop = (int) Math.floor(challenBounds.top);
+        int challenWidth = ((int) Math.floor(challenBounds.right)) - challenLeft;
+        int challenHeight = Math.abs(((int) Math.floor(challenBounds.bottom)) - challenTop);
+        Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
+
+        int userLeft = (int) Math.floor(userBounds.left);
+        int userTop = (int) Math.floor(userBounds.top);
+        int userWidth = ((int) Math.floor(userBounds.right)) - userLeft;
+        int userHeight = Math.abs(((int) Math.floor(userBounds.bottom)) - userTop);
+        Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
+
+        userCanvas.drawBitmap(challenFace, challenBounds, userBounds, new Paint());
+        challenCanvas.drawBitmap(userFace, userBounds, challenBounds, new Paint());
+    }
+
+    private void resetChallen() {
+        Random random = new Random();
+        int randomInt = random.nextInt(imageArray.length);
+
+        if (tempUser != null) {
+            userBitmap = tempUser.copy(Bitmap.Config.ARGB_8888, true);
+        }
+
+        Button swap = findViewById(R.id.faceSwap);
+        swap.setVisibility(View.VISIBLE);
+
+        Bitmap challen = BitmapFactory.decodeResource(getResources(), imageArray[randomInt]);
+        challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
+        tempChallen = challen.copy(Bitmap.Config.ARGB_8888, true);
         final Canvas challenCanvas = new Canvas(challenBitmap);
         ImageView challenPic = findViewById(R.id.challenPic);
         challenPic.setImageBitmap(challenBitmap);
@@ -122,36 +188,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Makes an intent and starts an activity to take a picture.
-     */
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-    }
-
-    private void swapFacesFunction() {
-        final Canvas userCanvas = new Canvas(userBitmap);
-        final Canvas challenCanvas = new Canvas(challenBitmap);
-
-        int challenLeft = (int) Math.floor(challenBounds.left);
-        int challenTop = (int) Math.floor(challenBounds.top);
-        int challenWidth = ((int) Math.floor(challenBounds.right)) - challenLeft;
-        int challenHeight = Math.abs(((int) Math.floor(challenBounds.bottom)) - challenTop);
-        Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
-
-        int userLeft = (int) Math.floor(userBounds.left);
-        int userTop = (int) Math.floor(userBounds.top);
-        int userWidth = ((int) Math.floor(userBounds.right)) - userLeft;
-        int userHeight = Math.abs(((int) Math.floor(userBounds.bottom)) - userTop);
-        Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
-
-        userCanvas.drawBitmap(challenFace, challenBounds, userBounds, new Paint());
-        challenCanvas.drawBitmap(userFace, userBounds, challenBounds, new Paint());
-    }
-
-    /**
      * This function runs when the user is done taking a picture. The image is converted into a bitmap.
      * @param requestCode The code to request
      * @param resultCode The resulting code
@@ -194,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                                             // ...
                                             ImageView userPic = findViewById(R.id.yourPic);
                                             userPic.setImageBitmap(userBitmap);
+                                            tempUser = userBitmap.copy(Bitmap.Config.ARGB_8888, true);
 
                                             int counter = 0;
                                             for (FirebaseVisionFace face : faces) {
