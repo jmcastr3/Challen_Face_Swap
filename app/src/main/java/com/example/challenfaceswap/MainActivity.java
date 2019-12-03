@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -36,17 +37,20 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap challenBitmap;
 
-    private Bitmap tempChallen;
-
     private Bitmap userBitmap;
+
+    private Bitmap tempChallen;
 
     private Bitmap tempUser;
 
-    private Rect userBounds;
-
     private Rect challenBounds;
 
-    private int[] imageArray = {R.drawable.challen, R.drawable.challen2, R.drawable.challen3, R.drawable.challen4, R.drawable.challen5};
+    private Rect userBounds;
+
+    private int[] imageArray2 = {R.drawable.challen, R.drawable.challen2, R.drawable.challen3, R.drawable.challen4, R.drawable.challen5};
+
+    private int[] imageArray = {R.drawable.challen2};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
-                resetChallen();
+                //resetChallen();
             }
         });
 
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen);
+        Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen2);
         challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
         ImageView challenPic = findViewById(R.id.challenPic);
         challenPic.setImageBitmap(challenBitmap);
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         final Canvas userCanvas = new Canvas(userBitmap);
         final Canvas challenCanvas = new Canvas(challenBitmap);
 
+        /**
         int challenLeft = (int) Math.floor(challenBounds.left);
         int challenTop = (int) Math.floor(challenBounds.top);
         int challenWidth = ((int) Math.floor(challenBounds.right)) - challenLeft;
@@ -113,14 +118,34 @@ public class MainActivity extends AppCompatActivity {
         int userWidth = ((int) Math.floor(userBounds.right)) - userLeft;
         int userHeight = Math.abs(((int) Math.floor(userBounds.bottom)) - userTop);
         Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
+        */
 
-        userCanvas.drawBitmap(challenFace, challenBounds, userBounds, new Paint());
-        challenCanvas.drawBitmap(userFace, userBounds, challenBounds, new Paint());
+        int challenLeft = challenBounds.left;
+        int challenTop = challenBounds.top;
+        int challenWidth = Math.abs(challenBounds.width());
+        int challenHeight = Math.abs(challenBounds.height());
+        Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
+
+        int userLeft = userBounds.left;
+        int userTop = userBounds.top;
+        int userWidth = Math.abs(userBounds.width());
+        int userHeight = Math.abs(userBounds.height());
+        Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
+
+        Matrix challenMatrix = new Matrix();
+        challenMatrix.setScale((float) userBounds.width() / challenFace.getWidth(), (float) userBounds.height() / challenFace.getHeight());
+        challenMatrix.postTranslate((float) userBounds.left, (float) userBounds.top);
+        
+        userCanvas.drawBitmap(challenFace, challenMatrix, new Paint());
+        //userCanvas.drawBitmap(challenFace, challenBounds, userBounds, new Paint());
+        //challenCanvas.drawBitmap(userFace, userBounds, challenBounds, new Paint());
+
     }
 
     private void resetChallen() {
-        Random random = new Random();
-        int randomInt = random.nextInt(imageArray.length);
+
+        //Random random = new Random();
+        //int randomInt = random.nextInt(imageArray.length);
 
         if (tempUser != null) {
             userBitmap = tempUser.copy(Bitmap.Config.ARGB_8888, true);
@@ -129,7 +154,8 @@ public class MainActivity extends AppCompatActivity {
         Button swap = findViewById(R.id.faceSwap);
         swap.setVisibility(View.VISIBLE);
 
-        Bitmap challen = BitmapFactory.decodeResource(getResources(), imageArray[randomInt]);
+        //Bitmap challen = BitmapFactory.decodeResource(getResources(), imageArray[randomInt]);
+        Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen2);
         challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
         tempChallen = challen.copy(Bitmap.Config.ARGB_8888, true);
         final Canvas challenCanvas = new Canvas(challenBitmap);
@@ -171,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                                             challenCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Bottom left to top left
                                             challenCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
-
+                
                                         }
                                     }
                                 })
@@ -234,9 +260,11 @@ public class MainActivity extends AppCompatActivity {
 
                                             int counter = 0;
                                             for (FirebaseVisionFace face : faces) {
+
                                                 if (counter == 0) {
                                                     userBounds = face.getBoundingBox();
                                                 }
+
                                                 Rect bounds = face.getBoundingBox();
                                                 //Top left to top right
                                                 userCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
@@ -246,7 +274,9 @@ public class MainActivity extends AppCompatActivity {
                                                 userCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 //Bottom left to top left
                                                 userCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
+
                                                 counter++;
+
                                             }
                                             Button swap = findViewById(R.id.faceSwap);
                                             swap.setVisibility(View.VISIBLE);

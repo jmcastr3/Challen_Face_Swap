@@ -35,7 +35,7 @@
             android:id="@+id/challenPic"
             android:layout_width="match_parent"
             android:layout_height="298dp"
-            tools:srcCompat="@drawable/challen" />
+            tools:srcCompat="@drawable/challen2" />
 
         <Button
             android:id="@+id/faceSwap"
