@@ -1,8 +1,10 @@
 package com.example.challenfaceswap;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Rect userBounds;
 
-    private int[] imageArray2 = {R.drawable.challen, R.drawable.challen2, R.drawable.challen3, R.drawable.challen4, R.drawable.challen5};
+    //private int[] imageArray2 = {R.drawable.challen, R.drawable.challen2, R.drawable.challen3, R.drawable.challen4, R.drawable.challen5};
 
-    private int[] imageArray = {R.drawable.challen2};
+    //private int[] imageArray = {R.drawable.challen2};
 
 
     @Override
@@ -63,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
-                //resetChallen();
             }
         });
 
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen2);
         challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
+        tempChallen = challen.copy(Bitmap.Config.ARGB_8888, true);
         ImageView challenPic = findViewById(R.id.challenPic);
         challenPic.setImageBitmap(challenBitmap);
     }
@@ -100,43 +102,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void swapFacesFunction() {
+
         Button swap = findViewById(R.id.faceSwap);
         swap.setVisibility(View.GONE);
 
-        final Canvas userCanvas = new Canvas(userBitmap);
-        final Canvas challenCanvas = new Canvas(challenBitmap);
+        try {
+            Canvas userCanvas = new Canvas(userBitmap);
+            Canvas challenCanvas = new Canvas(challenBitmap);
 
-        /**
-        int challenLeft = (int) Math.floor(challenBounds.left);
-        int challenTop = (int) Math.floor(challenBounds.top);
-        int challenWidth = ((int) Math.floor(challenBounds.right)) - challenLeft;
-        int challenHeight = Math.abs(((int) Math.floor(challenBounds.bottom)) - challenTop);
-        Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
+            int challenLeft = challenBounds.left;
+            int challenTop = challenBounds.top;
+            int challenWidth = Math.abs(challenBounds.width());
+            int challenHeight = Math.abs(challenBounds.height());
+            Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
 
-        int userLeft = (int) Math.floor(userBounds.left);
-        int userTop = (int) Math.floor(userBounds.top);
-        int userWidth = ((int) Math.floor(userBounds.right)) - userLeft;
-        int userHeight = Math.abs(((int) Math.floor(userBounds.bottom)) - userTop);
-        Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
-        */
+            int userLeft = userBounds.left;
+            int userTop = userBounds.top;
+            int userWidth = Math.abs(userBounds.width());
+            int userHeight = Math.abs(userBounds.height());
+            Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
 
-        int challenLeft = challenBounds.left;
-        int challenTop = challenBounds.top;
-        int challenWidth = Math.abs(challenBounds.width());
-        int challenHeight = Math.abs(challenBounds.height());
-        Bitmap challenFace = challenBitmap.createBitmap(challenBitmap, challenLeft, challenTop, challenWidth, challenHeight, null, false);
+            Matrix challenMatrix = new Matrix();
+            challenMatrix.setScale((float) userWidth / challenFace.getWidth(), (float) userHeight / challenFace.getHeight());
+            challenMatrix.postTranslate((float) userBounds.left, (float) userBounds.top);
 
-        int userLeft = userBounds.left;
-        int userTop = userBounds.top;
-        int userWidth = Math.abs(userBounds.width());
-        int userHeight = Math.abs(userBounds.height());
-        Bitmap userFace = userBitmap.createBitmap(userBitmap, userLeft, userTop, userWidth, userHeight, null, false);
 
-        Matrix challenMatrix = new Matrix();
-        challenMatrix.setScale((float) userBounds.width() / challenFace.getWidth(), (float) userBounds.height() / challenFace.getHeight());
-        challenMatrix.postTranslate((float) userBounds.left, (float) userBounds.top);
-        
-        userCanvas.drawBitmap(challenFace, challenMatrix, new Paint());
+            Matrix userMatrix = new Matrix();
+            userMatrix.setScale((float) challenWidth / userFace.getWidth(), (float) challenHeight / userFace.getHeight());
+            userMatrix.postTranslate((float) challenBounds.left, (float) challenBounds.top);
+
+            userCanvas.drawBitmap(challenFace, challenMatrix, new Paint());
+            challenCanvas.drawBitmap(userFace, userMatrix, new Paint());
+        } catch (Exception e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Error: " + e.getMessage() + "\n\nPress OK to take another picture.").setTitle("Face Swap Error").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dispatchTakePictureIntent();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
         //userCanvas.drawBitmap(challenFace, challenBounds, userBounds, new Paint());
         //challenCanvas.drawBitmap(userFace, userBounds, challenBounds, new Paint());
 
@@ -147,18 +155,22 @@ public class MainActivity extends AppCompatActivity {
         //Random random = new Random();
         //int randomInt = random.nextInt(imageArray.length);
 
+        /**
         if (tempUser != null) {
             userBitmap = tempUser.copy(Bitmap.Config.ARGB_8888, true);
         }
+         */
+        ImageView userPic = findViewById(R.id.yourPic);
 
-        Button swap = findViewById(R.id.faceSwap);
-        swap.setVisibility(View.VISIBLE);
+        if (userPic.getDrawable() != null) {
+            Button swap = findViewById(R.id.faceSwap);
+            swap.setVisibility(View.VISIBLE);
+        }
 
         //Bitmap challen = BitmapFactory.decodeResource(getResources(), imageArray[randomInt]);
         Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen2);
         challenBitmap = challen.copy(Bitmap.Config.ARGB_8888, true);
         tempChallen = challen.copy(Bitmap.Config.ARGB_8888, true);
-        final Canvas challenCanvas = new Canvas(challenBitmap);
         ImageView challenPic = findViewById(R.id.challenPic);
         challenPic.setImageBitmap(challenBitmap);
 
@@ -189,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                         for (FirebaseVisionFace face : faces) {
                                             challenBounds = face.getBoundingBox();
                                             Rect bounds = face.getBoundingBox();
+                                            /**
                                             //Top left to top right
                                             challenCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Top right to bottom right
@@ -197,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                                             challenCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Bottom left to top left
                                             challenCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
-                
+                                            */
                                         }
                                     }
                                 })
@@ -227,7 +240,8 @@ public class MainActivity extends AppCompatActivity {
             userBitmap = (Bitmap) extras.get("data");
             ImageView userView = findViewById(R.id.yourPic);
             userView.setImageBitmap(userBitmap);
-            final Canvas userCanvas = new Canvas(userBitmap);
+
+            resetChallen();
 
             //Configure the face detector to high accuracy.
             FirebaseVisionFaceDetectorOptions userFace =
@@ -266,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                                                 }
 
                                                 Rect bounds = face.getBoundingBox();
+                                                /**
                                                 //Top left to top right
                                                 userCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 //Top right to bottom right
@@ -274,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
                                                 userCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 //Bottom left to top left
                                                 userCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
-
+                                                */
                                                 counter++;
 
                                             }
