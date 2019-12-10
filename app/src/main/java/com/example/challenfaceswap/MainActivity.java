@@ -12,7 +12,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -29,7 +28,6 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,20 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap userBitmap;
 
-    //private Bitmap tempChallen;
-
-    //private Bitmap tempUser;
-
     private Rect challenBounds;
 
-    //private Rect userBounds;
-
     private Rect[] multipleBounds;
-
-    //private int[] imageArray2 = {R.drawable.challen, R.drawable.challen2, R.drawable.challen3, R.drawable.challen4, R.drawable.challen5};
-
-    //private int[] imageArray = {R.drawable.challen2};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -229,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             count++;
                                             //Rect bounds = face.getBoundingBox();
-                                            /**
+                                            /** For bug testing
                                             //Top left to top right
                                             challenCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                             //Top right to bottom right
@@ -314,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Rect bounds = face.getBoundingBox();
                                                 userFaces[counter] = bounds;
                                                 counter++;
-                                                /**
+                                                /** For bug testing
                                                 Canvas userCanvas = new Canvas(userBitmap);
                                                 //Top left to top right
                                                 userCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
