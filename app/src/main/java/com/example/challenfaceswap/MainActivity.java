@@ -109,6 +109,19 @@ public class MainActivity extends AppCompatActivity {
         Button swap = findViewById(R.id.faceSwap);
         swap.setVisibility(View.GONE);
 
+        if (multipleBounds == null || multipleBounds.length == 0) {
+            swap.setVisibility(View.GONE);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Error: No faces found" + "\n\nPress OK to take another picture.").setTitle("Face Swap Error").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dispatchTakePictureIntent();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
         try {
             swap.setVisibility(View.GONE);
 
@@ -253,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
             userBitmap = (Bitmap) extras.get("data");
             ImageView userView = findViewById(R.id.yourPic);
             userView.setImageBitmap(userBitmap);
-            multipleBounds = null;
+            multipleBounds = new Rect[0];
             resetChallen();
 
             //Configure the face detector to high accuracy.
