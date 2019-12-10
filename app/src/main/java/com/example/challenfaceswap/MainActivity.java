@@ -30,6 +30,7 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -183,11 +184,12 @@ public class MainActivity extends AppCompatActivity {
         }
          */
         ImageView userPic = findViewById(R.id.yourPic);
-
+        /**
         if (userPic.getDrawable() != null) {
             Button swap = findViewById(R.id.faceSwap);
             swap.setVisibility(View.VISIBLE);
         }
+         */
 
         //Bitmap challen = BitmapFactory.decodeResource(getResources(), imageArray[randomInt]);
         Bitmap challen = BitmapFactory.decodeResource(getResources(), R.drawable.challen2);
@@ -312,8 +314,8 @@ public class MainActivity extends AppCompatActivity {
                                                 Rect bounds = face.getBoundingBox();
                                                 userFaces[counter] = bounds;
                                                 counter++;
-
                                                 /**
+                                                Canvas userCanvas = new Canvas(userBitmap);
                                                 //Top left to top right
                                                 userCanvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 //Top right to bottom right
@@ -322,12 +324,18 @@ public class MainActivity extends AppCompatActivity {
                                                 userCanvas.drawLine(bounds.right, bounds.bottom, bounds.left, bounds.bottom, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 //Bottom left to top left
                                                 userCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
-                                                */
+                                                 */
                                             }
 
                                             multipleBounds = userFaces;
-                                            Button swap = findViewById(R.id.faceSwap);
-                                            swap.setVisibility(View.VISIBLE);
+                                            try {
+                                                Button swap = findViewById(R.id.faceSwap);
+                                                swap.setVisibility(View.GONE);
+                                                TimeUnit.SECONDS.sleep(1);
+                                                swap.setVisibility(View.VISIBLE);
+                                            } catch (InterruptedException e) {
+
+                                            }
                                         }
                                     })
                             .addOnFailureListener(
