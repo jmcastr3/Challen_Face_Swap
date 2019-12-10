@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -109,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
         swap.setVisibility(View.GONE);
 
         try {
+            swap.setVisibility(View.GONE);
+
             Canvas userCanvas = new Canvas(userBitmap);
             Canvas challenCanvas = new Canvas(challenBitmap);
 
@@ -139,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         } catch (Exception e) {
+            swap.setVisibility(View.GONE);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Error: " + e.getMessage() + "\n\nPress OK to take another picture.").setTitle("Face Swap Error").setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
@@ -203,9 +207,12 @@ public class MainActivity extends AppCompatActivity {
                                     public void onSuccess(List<FirebaseVisionFace> faces) {
                                         // Task completed successfully
                                         // ...
-
+                                        int count = 0;
                                         for (FirebaseVisionFace face : faces) {
-                                            challenBounds = face.getBoundingBox();
+                                            if (count == 0) {
+                                                challenBounds = face.getBoundingBox();
+                                            }
+                                            count++;
                                             //Rect bounds = face.getBoundingBox();
                                             /**
                                             //Top left to top right
@@ -246,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
             userBitmap = (Bitmap) extras.get("data");
             ImageView userView = findViewById(R.id.yourPic);
             userView.setImageBitmap(userBitmap);
-
+            multipleBounds = null;
             resetChallen();
 
             //Configure the face detector to high accuracy.
@@ -274,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
                                         public void onSuccess(List<FirebaseVisionFace> faces) {
                                             // Task completed successfully
                                             // ...
+
                                             ImageView userPic = findViewById(R.id.yourPic);
                                             userPic.setImageBitmap(userBitmap);
                                             //tempUser = userBitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -303,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
                                                 userCanvas.drawLine(bounds.left, bounds.bottom, bounds.left, bounds.top, new Paint(Paint.FILTER_BITMAP_FLAG));
                                                 */
                                             }
+
                                             multipleBounds = userFaces;
                                             Button swap = findViewById(R.id.faceSwap);
                                             swap.setVisibility(View.VISIBLE);
@@ -313,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             // Task failed with an exception
-                                            // ...
+
                                         }
                                     });
 
